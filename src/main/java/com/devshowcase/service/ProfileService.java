@@ -1,0 +1,54 @@
+package com.devshowcase.api.service;
+
+import com.devshowcase.api.dto.ProfileRequestDTO;
+import com.devshowcase.api.dto.ProfileResponseDTO;
+import com.devshowcase.api.entity.Profile;
+import com.devshowcase.api.repository.ProfileRepository;
+import org.springframework.stereotype.Service;
+
+@Service
+public class ProfileService {
+
+    private final ProfileRepository profileRepository;
+
+    public ProfileService(ProfileRepository profileRepository) {
+        this.profileRepository = profileRepository;
+    }
+
+    public ProfileResponseDTO create(ProfileRequestDTO dto) {
+
+        Profile profile = new Profile(
+                dto.getName(),
+                dto.getEmail(),
+                dto.getBio(),
+                dto.getGithubUrl(),
+                dto.getLinkedinUrl()
+        );
+
+        Profile savedProfile = profileRepository.save(profile);
+
+        return new ProfileResponseDTO(
+                savedProfile.getId(),
+                savedProfile.getName(),
+                savedProfile.getEmail(),
+                savedProfile.getBio(),
+                savedProfile.getGithubUrl(),
+                savedProfile.getLinkedinUrl()
+        );
+    }
+
+    public ProfileResponseDTO findById(Long id) {
+
+        Profile profile = profileRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Perfil não encontrado"));
+
+        return new ProfileResponseDTO(
+                profile.getId(),
+                profile.getName(),
+                profile.getEmail(),
+                profile.getBio(),
+                profile.getGithubUrl(),
+                profile.getLinkedinUrl()
+        );
+    }
+}
