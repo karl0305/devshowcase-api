@@ -8,6 +8,8 @@ import com.devshowcase.api.entity.Technology;
 import com.devshowcase.api.repository.ProjectRepository;
 import com.devshowcase.api.repository.ProfileRepository;
 import com.devshowcase.api.repository.TechnologyRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,8 +36,8 @@ public class ProjectService {
         Profile profile = profileRepository.findById(dto.getProfileId())
                 .orElseThrow(() -> new RuntimeException("Perfil não encontrado"));
 
-        List<Technology> technologies = technologyRepository
-                .findAllById(dto.getTechnologyIds());
+        List<Technology> technologies =
+                technologyRepository.findAllById(dto.getTechnologyIds());
 
         Project project = new Project(
                 dto.getTitle(),
@@ -43,44 +45,58 @@ public class ProjectService {
                 dto.getRepositoryUrl(),
                 dto.getDeployUrl(),
                 profile
-        );project.setTechnologies(technologies);
+        );
+
+        project.setTechnologies(technologies);
 
         Project savedProject = projectRepository.save(project);
 
-        return new ProjectResponseDTO(
-                savedProject.getId(),
-                savedProject.getTitle(),
-                savedProject.getDescription(),
-                savedProject.getRepositoryUrl(),
-                savedProject.getDeployUrl(),
-                savedProject.getProfile().getId(),
-                technologies.stream()
-                        .map(Technology::getId)
-                        .toList()
-        );
+        return toResponse(savedProject);
     }
 
-   public List<ProjectResponseDTO> findAll() {
+    public Page<ProjectResponseDTO> findAll(
+            Long technologyId,
+            Pageable pageable) {
 
-    return projectRepository.findAll()
-            .stream()
-            .map(project -> new ProjectResponseDTO(
-                    project.getId(),
-                    project.getTitle(),
-                    project.getDescription(),
-                    project.getRepositoryUrl(),
-                    project.getDeployUrl(),
-                    project.getProfile().getId(),
-                    technologyRepository.findAllById(
-                            project.getTechnologies()
-                                    .stream()
-                                    .map(Technology::getId)
-                                    .toList()
-                    )
-                    .stream()
-                    .map(Technology::getId)
-                    .toList()
-            ))
-            .toList();
-}
+        Page<Project> projects;
+
+        if (technologyId != null) {
+            projects = projectRepository.findByTechnologyId(
+                    technologyId,
+                    pageable
+            );
+        } else {
+            projects = projectRepository.findAll(pageable);
+        }
+
+        return projects.map(this::toResponse);
+    }
+
+    public void upvote(Long projectId) {
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Projeto não encontrado"));
+
+        project.setUpvotes(project.getUpvotes() + 1);
+
+        projectRepository.save(project);
+    }
+
+    private ProjectResponseDTO toResponse(Project project) {
+
+        return new ProjectResponseDTO(
+                project.getId(),
+                project.getTitle(),
+                project.getDescription(),
+                project.getRepositoryUrl(),
+                project.getDeployUrl(),
+                project.getProfile().getId(),
+                project.getTechnologies()
+                        .stream()
+                        .map(Technology::getId)
+                        .toList(),
+                project.getUpvotes(),
+                project.getAverageRating()
+        );
+    }
 }

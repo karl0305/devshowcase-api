@@ -21,6 +21,11 @@ public class Project {
     private String repositoryUrl;
 
     private String deployUrl;
+    @Column(nullable = false)
+private Integer upvotes = 0;
+
+@Column(nullable = false)
+private Double averageRating = 0.0;
 
     @ManyToOne
     @JoinColumn(name = "profile_id", nullable = false)
@@ -102,4 +107,19 @@ private List<Technology> technologies = new java.util.ArrayList<>();
     public void setTechnologies(List<Technology> technologies) {
         this.technologies = technologies;
     }
+    public Integer getUpvotes() {
+    return upvotes;
+}
+
+public void setUpvotes(Integer upvotes) {
+    this.upvotes = upvotes;
+}
+
+public Double getAverageRating() {
+    return averageRating;
+}
+
+public void setAverageRating(Double averageRating) {
+    this.averageRating = averageRating;
+}
 }

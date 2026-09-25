@@ -11,6 +11,8 @@ public class ProjectResponseDTO {
     private String deployUrl;
     private Long profileId;
     private List<Long> technologyIds;
+    private Integer upvotes;
+    private Double averageRating;
 
     public ProjectResponseDTO() {
     }
@@ -22,7 +24,9 @@ public class ProjectResponseDTO {
             String repositoryUrl,
             String deployUrl,
             Long profileId,
-            List<Long> technologyIds) {
+            List<Long> technologyIds,
+            Integer upvotes,
+            Double averageRating) {
 
         this.id = id;
         this.title = title;
@@ -31,6 +35,8 @@ public class ProjectResponseDTO {
         this.deployUrl = deployUrl;
         this.profileId = profileId;
         this.technologyIds = technologyIds;
+        this.upvotes = upvotes;
+        this.averageRating = averageRating;
     }
 
     public Long getId() {
@@ -59,5 +65,13 @@ public class ProjectResponseDTO {
 
     public List<Long> getTechnologyIds() {
         return technologyIds;
+    }
+
+    public Integer getUpvotes() {
+        return upvotes;
+    }
+
+    public Double getAverageRating() {
+        return averageRating;
     }
 }
